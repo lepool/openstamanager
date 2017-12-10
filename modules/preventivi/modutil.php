@@ -21,10 +21,6 @@ function add_articolo_inpreventivo($idpreventivo, $idarticolo, $descrizione, $id
     // $rs = $dbo->fetchArray($query);
     // $um = $rs[0]['valore'];
 
-
-syslog(LOG_INFO,"mydebug-->preventivi-->modutil-->add_articolo_inpreventivo-->");
-
-
     $query = 'SELECT um FROM mg_articoli WHERE id='.prepare($idarticolo);
     $rs = $dbo->fetchArray($query);
     $um = $rs[0]['um'];
@@ -58,9 +54,6 @@ function rimuovi_articolo_dapreventivo($idarticolo, $idpreventivo, $idriga)
     global $dbo;
     global $dir;
 
-syslog(LOG_INFO,"mydebug-->preventivi-->modutil-->del_articolo_inpreventivo-->");
-
-
     //Leggo la quantità di questo articolo nell'ordine
     $query = 'SELECT qta, subtotale FROM co_righe_preventivi WHERE id='.prepare($idriga);
     $rs = $dbo->fetchArray($query);
@@ -83,9 +76,6 @@ function ricalcola_costiagg_preventivo($idpreventivo, $idrivalsainps = '', $idri
 {
     global $dbo;
     global $dir;
-
-syslog(LOG_INFO,"mydebug-->preventivi-->modutil-->ricalcola_costiagg_preventivo-->");
-
 
     //Se ci sono righe nel ordine faccio i conteggi, altrimenti azzero gli sconti e le spese aggiuntive (inps, ritenuta, marche da bollo)
     $query = 'SELECT COUNT(id) AS righe FROM co_righe_preventivi WHERE idpreventivo='.prepare($idpreventivo);

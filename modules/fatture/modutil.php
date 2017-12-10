@@ -757,11 +757,8 @@ function aggiorna_sconto($tables, $fields, $id_record, $options = [])
 
 
         if ($options['idiva'] == ""){
-
-syslog(LOG_INFO,"mydebug-->fatture-->modutil-->aggiorna_sconto-->options-idiva-->predefined");
             $idiva = get_var('Iva predefinita');
         } else {
-syslog(LOG_INFO,"mydebug-->fatture-->modutil-->aggiorna_sconto-->options-idiva-->cliente");
             $idiva = $options['idiva'];
         }
 
