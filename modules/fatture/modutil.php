@@ -754,7 +754,17 @@ function aggiorna_sconto($tables, $fields, $id_record, $options = [])
         }
 
         // Calcolo dell'IVA da scontare
-        $idiva = get_var('Iva predefinita');
+
+
+        if ($options['idiva'] == ""){
+
+syslog(LOG_INFO,"mydebug-->fatture-->modutil-->aggiorna_sconto-->options-idiva-->predefined");
+            $idiva = get_var('Iva predefinita');
+        } else {
+syslog(LOG_INFO,"mydebug-->fatture-->modutil-->aggiorna_sconto-->options-idiva-->cliente");
+            $idiva = $options['idiva'];
+        }
+
         $rsi = $dbo->select('co_iva', ['descrizione', 'percentuale'], ['id' => $idiva]);
         $iva = $subtotale / 100 * $rsi[0]['percentuale'];
 

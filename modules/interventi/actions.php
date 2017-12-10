@@ -6,6 +6,7 @@ include_once $docroot.'/modules/interventi/modutil.php';
 include_once $docroot.'/modules/articoli/modutil.php';
 include_once $docroot.'/modules/my_impianti/modutil.php';
 
+
 switch (post('op')) {
     case 'update':
         $idpreventivo = post('idpreventivo');

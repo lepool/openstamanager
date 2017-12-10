@@ -2,10 +2,20 @@
 
 include_once __DIR__.'/../../core.php';
 
+
+
+
+
+syslog(LOG_INFO,"mydebug-->preventivi-->row-list-->");
+
+
 /*
 ARTICOLI + RIGHE GENERICHE
 */
 $q_art = "SELECT *, IFNULL((SELECT codice FROM mg_articoli WHERE id=idarticolo),'') AS codice, IFNULL((SELECT descrizione FROM co_iva WHERE id=idiva),'') AS desc_iva  FROM co_righe_preventivi WHERE idpreventivo=".prepare($id_record).' ORDER BY `order`';
+
+syslog(LOG_INFO,"mydebug-->preventivi-->row-list-->query-->$q_art");
+
 $rs = $dbo->fetchArray($q_art);
 
 echo '

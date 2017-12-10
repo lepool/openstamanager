@@ -2,10 +2,16 @@
 
 include_once __DIR__.'/../../core.php';
 
+syslog(LOG_INFO,"mydebug-->preventivi-->actions-->op--------->".post('op'));
+
+
 include_once $docroot.'/modules/fatture/modutil.php';
+
+
 
 switch (post('op')) {
     case 'add':
+syslog(LOG_INFO,"mydebug-->preventivi-->actions-->add-->");
         $idanagrafica = post('idanagrafica');
         $nome = post('nome');
 
@@ -38,7 +44,21 @@ switch (post('op')) {
             $numero = get_next_code($rs[0]['numero'], 1, get_var('Formato codice preventivi'));
         }
 
-        $idiva = get_var('Iva predefinita');
+        $myquery = 'SELECT idiva_vendite FROM an_anagrafiche WHERE idanagrafica='.prepare($idanagrafica);
+
+syslog(LOG_INFO,"mydebug-->preventivi-->actions-->add-->myquery-->" . $myquery);
+        $rs_anagr = $dbo->fetchArray($myquery);
+
+syslog(LOG_INFO,"mydebug-->preventivi-->actions-->add-->rs_anagr-->" . print_r($rs_anagr,true));
+
+        
+        if ($rs_anagr[0]['idiva_vendite'] == ''){
+syslog(LOG_INFO,"mydebug-->preventivi-->actions-->add-->predefined_idiva-->" . $rs_anagr[0]['idiva_vendite']);
+            $idiva = get_var('Iva predefinita');
+        } else     {
+syslog(LOG_INFO,"mydebug-->preventivi-->actions-->add-->cliente_idiva");
+            $idiva = $rs_anagr[0]['idiva_vendite'];
+        }
         $rs_iva = $dbo->fetchArray('SELECT descrizione, percentuale, indetraibile FROM co_iva WHERE id='.prepare($idiva));
 
         // Se al preventivo non è stato associato un pagamento predefinito al cliente leggo il pagamento dalle impostazioni
@@ -72,6 +92,7 @@ switch (post('op')) {
         break;
 
     case 'update':
+syslog(LOG_INFO,"mydebug-->preventivi-->actions-->update-->");
         if (isset($id_record)) {
             $idstato = post('idstato');
             $nome = post('nome');
@@ -85,6 +106,7 @@ switch (post('op')) {
 
             $tipo_sconto = $post['tipo_sconto_generico'];
             $sconto = $post['sconto_generico'];
+
 
             // $budget = post('budget');
             // $budget = str_replace( ",", ".", $budget );
@@ -104,6 +126,15 @@ switch (post('op')) {
             // $costo_km = post('costo_km');
 
             $idiva = post('idiva');
+
+syslog(LOG_INFO,"mydebug-->preventivi-->actions-->update-->idstato-->$idstato");
+syslog(LOG_INFO,"mydebug-->preventivi-->actions-->update-->nome-->$nome");
+syslog(LOG_INFO,"mydebug-->preventivi-->actions-->update-->idanagrafica-->$idanagrafica");
+syslog(LOG_INFO,"mydebug-->preventivi-->actions-->update-->numero-->$numero");
+syslog(LOG_INFO,"mydebug-->preventivi-->actions-->update-->tipo_sconto-->$tipo_sconto");
+syslog(LOG_INFO,"mydebug-->preventivi-->actions-->update-->sconto-->$sconto");
+syslog(LOG_INFO,"mydebug-->preventivi-->actions-->update-->idiva-->$idiva");
+
 
             $query = 'UPDATE co_preventivi SET idstato='.prepare($idstato).','.
                 ' nome='.prepare($nome).','.
@@ -125,6 +156,9 @@ switch (post('op')) {
                 ' validita='.prepare($validita).','.
                 ' idtipointervento='.prepare($idtipointervento).','.
                 ' idiva='.prepare($idiva).' WHERE id='.prepare($id_record);
+
+syslog(LOG_INFO,"mydebug-->preventivi-->actions-->update-->query-->$query");
+
             $dbo->query($query);
 
             aggiorna_sconto([
@@ -133,7 +167,12 @@ switch (post('op')) {
             ], [
                 'parent' => 'id',
                 'row' => 'idpreventivo',
-            ], $id_record);
+            ], $id_record , [
+            
+               'idiva' => $idiva ,
+            ]
+            
+            );
 
             // update_budget_preventivo( $id_record );
             $_SESSION['infos'][] = tr('Preventivo modificato correttamente!');
@@ -141,6 +180,7 @@ switch (post('op')) {
         break;
 
     case 'addintervento':
+syslog(LOG_INFO,"mydebug-->preventivi-->actions-->addintervento-->");
         if (isset($post['idintervento'])) {
             // Selezione costi da intervento
             $idintervento = post('idintervento');
@@ -164,6 +204,9 @@ switch (post('op')) {
 
     // Scollegamento articolo da ordine
     case 'unlink_articolo':
+syslog(LOG_INFO,"mydebug-->preventivi-->actions-->unlinkarticolo-->");
+
+
         if (isset($post['idriga'])) {
             $idriga = post('idriga');
             $idarticolo = post('idarticolo');
@@ -183,6 +226,7 @@ switch (post('op')) {
 
     // Scollegamento intervento da preventivo
     case 'unlink':
+syslog(LOG_INFO,"mydebug-->preventivi-->actions-->unlink-->");
         if (isset($_GET['idpreventivo']) && isset($_GET['idintervento'])) {
             $idintervento = $get['idintervento'];
 
@@ -197,6 +241,7 @@ switch (post('op')) {
 
     // eliminazione preventivo
     case 'delete':
+syslog(LOG_INFO,"mydebug-->preventivi-->actions-->delete-->");
         $dbo->query('DELETE FROM co_preventivi WHERE id='.prepare($id_record));
         $dbo->query('DELETE FROM co_preventivi_interventi WHERE idpreventivo='.prepare($id_record));
 
@@ -206,6 +251,9 @@ switch (post('op')) {
 
     // Aggiungo una riga al preventivo
     case 'addriga':
+
+syslog(LOG_INFO,"mydebug-->preventivi-->actions-->addriga-->");
+
         $idarticolo = post('idarticolo');
         $idiva = post('idiva');
         $descrizione = post('descrizione');
@@ -235,6 +283,10 @@ switch (post('op')) {
         break;
 
     case 'editriga':
+
+syslog(LOG_INFO,"mydebug-->preventivi-->actions-->editriga-->");
+
+
         $idriga = post('idriga');
         $descrizione = post('descrizione');
 
@@ -264,6 +316,7 @@ switch (post('op')) {
         break;
 
     case 'update_position':
+syslog(LOG_INFO,"mydebug-->preventivi-->actions-->update_position-->");
         $start = filter('start');
         $end = filter('end');
         $id = filter('id');
@@ -280,6 +333,11 @@ switch (post('op')) {
 }
 
 if (post('op') !== null && post('op') != 'update') {
+
+syslog(LOG_INFO,"mydebug-->preventivi-->actions-->post_update-->idstato-->");
+
+
+
     aggiorna_sconto([
         'parent' => 'co_preventivi',
         'row' => 'co_righe_preventivi',
